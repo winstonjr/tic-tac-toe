@@ -37,7 +37,7 @@ case class Game(playerXName: String, playerOName: String) {
   def printBoard(): Unit = board.printBoard()
 
   def play(): Either[String, String] = {
-    val positions = turn.getPositions
+    val positions = turn.getMove
 
     board.stamp(turn.symbol, positions._1, positions._2) match {
       case Left(bla) => Left(bla)
@@ -97,7 +97,7 @@ trait PlayerBoard {
   def getBoardArray: Array[String] =
     board.map(v => if (1.equals(v)) symbol else " ")
 
-  def getPositions: (Int, Int) = {
+  def getMove: (Int, Int) = {
     print(s"$name escolha a linha: ")
     val row = readInt()
     print(s"$name escolha a Coluna: ")
@@ -111,7 +111,9 @@ case class HumanPlayer(symbol: String, name: String) extends PlayerBoard {
 }
 
 case class ComputerPlayer(symbol: String, name: String) extends PlayerBoard {
-
+  override def getMove: (Int, Int) = {
+    super.getMove
+  }
 }
 
 case class Board(playerX: PlayerBoard, playerO: PlayerBoard) {
@@ -159,14 +161,18 @@ case class Board(playerX: PlayerBoard, playerO: PlayerBoard) {
     }
   }
 
+  def mergePlayersBoard: Array[String] = {
+    (playerX.getBoardArray zip playerO.getBoardArray).map(v => {
+      if ("X".equals(v._1)) "X" else if ("O".equals(v._2)) "O" else " "
+    })
+  }
+
   /**
    * Prints the board on console
    */
   def printBoard(): Unit = {
     val DIMENSION = 3
-    val mergeBoard: Array[String] = (playerX.getBoardArray zip playerO.getBoardArray).map(v => {
-      if ("X".equals(v._1)) "X" else if ("O".equals(v._2)) "O" else " "
-    })
+    val mergeBoard: Array[String] = mergePlayersBoard
 
     println()
     println((1 to DIMENSION).map(row =>
