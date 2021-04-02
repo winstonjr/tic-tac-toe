@@ -27,9 +27,9 @@ object Game extends App {
   println(ticTacToeMatch.boardStatus)}
 
 case class Game(playerXName: String, playerOName: String) {
-  private val playerX = Player("X", playerXName)
-  private val playerO = Player("O", playerOName)
-  private var turn: Player = playerX
+  private val playerX: PlayerBoard = HumanPlayer("X", playerXName)
+  private val playerO: PlayerBoard = ComputerPlayer("O", playerOName)
+  private var turn: PlayerBoard = playerX
   private val board: Board = Board(playerX, playerO)
 
   def turnName : String = turn.name
@@ -107,10 +107,14 @@ trait PlayerBoard {
   }
 }
 
-case class Player(symbol: String, name: String) extends PlayerBoard {
+case class HumanPlayer(symbol: String, name: String) extends PlayerBoard {
 }
 
-case class Board(playerX: Player, playerO: Player) {
+case class ComputerPlayer(symbol: String, name: String) extends PlayerBoard {
+
+}
+
+case class Board(playerX: PlayerBoard, playerO: PlayerBoard) {
   def stamp(symbol: String, row: Int, col: Int): Either[String, String] = {
     if (playerX.isInsideBoardBoundaries(row, col)) {
       Left("a posição não existe no tabuleiro")
