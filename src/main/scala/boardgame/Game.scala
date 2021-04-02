@@ -53,7 +53,7 @@ trait PlayerBoard {
   val name: String
   final val defaultEmpty = 0
   protected final val boardSize = 3
-  val board: Array[Int] = Array.fill(boardSize*boardSize)(defaultEmpty)
+  final val board: Array[Int] = Array.fill(boardSize*boardSize)(defaultEmpty)
 
   /**
    * validates if is a winning board
@@ -61,7 +61,7 @@ trait PlayerBoard {
    * @param board board to be validated
    * @return true in case of a winning board, false if it is not winning board
    */
-  def isWinner: Boolean = {
+  final def isWinner: Boolean = {
     // 000000111 = 7   = Row 3
     // 000111000 = 56  = Row 2
     // 111000000 = 448 = Row 1
@@ -80,21 +80,21 @@ trait PlayerBoard {
     // https://github.com/loganmeetsworld/js-tic-tac-toe/blob/lm/master/tic-tac-toe.js
   }
 
-  def isInsideBoardBoundaries(row: Int, col: Int): Boolean =
+  final def isInsideBoardBoundaries(row: Int, col: Int): Boolean =
     row > boardSize || row < 1 || col > boardSize || col < 1
 
-  def isPositionFree(row: Int, col: Int): Boolean =
+  final def isPositionFree(row: Int, col: Int): Boolean =
     defaultEmpty.equals(board(getCalculatedArrayPosition(row, col)))
 
-  private def getCalculatedArrayPosition(row: Int, col: Int): Int =
+  final def getCalculatedArrayPosition(row: Int, col: Int): Int =
     if (row == 1) row-1 + col-1 else if (row == 2) row + col else row+1 + col+1
 
-  def setPlay(row: Int, col: Int) : Unit = {
+  final def setPlay(row: Int, col: Int) : Unit = {
     val arrayPos = getCalculatedArrayPosition(row, col)
     board(arrayPos) = 1
   }
 
-  def getBoardArray: Array[String] =
+  final def getBoardArray: Array[String] =
     board.map(v => if (1.equals(v)) symbol else " ")
 
   def getMove(board: Array[String]): (Int, Int) = {
@@ -111,13 +111,31 @@ case class HumanPlayer(symbol: String, name: String) extends PlayerBoard {
 }
 
 case class ComputerPlayer(symbol: String, name: String) extends PlayerBoard {
+  private def minimax(board: Array[String]): Int = {
+    1
+  }
+
   override def getMove(board: Array[String]): (Int, Int) = {
-    val index = board.indexOf(" ")
+    //val index = board.indexOf(" ")
+    var bestScore = Int.MinValue
+    var moveIndex = Int.MinValue
+    for (index <- 0 to 8) {
+      if (" ".equals(board(index))) {
+        board(index) = symbol
+        val score = minimax(board)
+        board(index) = " "
+        if (score > bestScore) {
+          bestScore = score
+          moveIndex = index
+        }
+      }
+    }
+
     val positions = Array((1,1), (1,2), (1,3),
                           (2,1), (2,2), (2,3),
                           (3,1), (3,2), (3,3))
 
-    positions(index)
+    positions(moveIndex)
   }
 }
 
@@ -186,7 +204,7 @@ case class Board(playerX: PlayerBoard, playerO: PlayerBoard) {
     println()
     println((1 to DIMENSION).map(row =>
       (1 to DIMENSION).map(col => {
-        val position = if (row == 1) row-1 + col-1 else if (row == 2) row + col else row+1 + col+1
+        val position = playerX.getCalculatedArrayPosition(row, col)
         s" ${mergeBoard(position)} "
       }).mkString("|")).mkString("\n---+---+---\n") + "\n")
     println()
