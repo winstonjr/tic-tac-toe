@@ -10,31 +10,31 @@ object Game extends App {
   //  print("Nome do Jogados 2: ")
   //  val jogador2 = readLine()
 
-    val jogador1 = "Winner"
-    val jogador2 = "Looser"
+  val jogador1 = "Winner"
+  val jogador2 = "Looser"
 
-    val ticTacToeMatch = Game(jogador1, jogador2)
+  val ticTacToeMatch = Game(jogador1, jogador2)
 
-    do {
-      ticTacToeMatch.play() match {
-        case Left(bla) => println(bla)
-        case default => default
-      }
+  do {
+    ticTacToeMatch.play() match {
+      case Left(bla) => println(bla)
+      case default => default
+    }
 
-      ticTacToeMatch.printBoard()
-    } while (ticTacToeMatch.boardStatus match {
-      case Left(_) => true
-      case Right(_) => false
-    })
+    ticTacToeMatch.printBoard()
+  } while (ticTacToeMatch.boardStatus match {
+    case Left(_) => true
+    case Right(_) => false
+  })
 
-    println(ticTacToeMatch.boardStatus)
+  println(ticTacToeMatch.boardStatus)
 }
 
 case class Game(playerXName: String, playerOName: String) {
   private val playerX: PlayerBoard = ComputerPlayer("X", playerXName)
   private val playerO: PlayerBoard = HumanPlayer("O", playerOName)
-//  private val playerX: PlayerBoard = HumanPlayer("X", playerXName)
-//  private val playerO: PlayerBoard = ComputerPlayer("O", playerOName)
+  //  private val playerX: PlayerBoard = HumanPlayer("X", playerXName)
+  //  private val playerO: PlayerBoard = ComputerPlayer("O", playerOName)
   private var turn: PlayerBoard = playerX
   private val board: Board = Board(playerX, playerO)
 
@@ -149,9 +149,7 @@ case class ComputerPlayer(symbol: String, name: String) extends PlayerBoard {
     // baseado na função apresentada aqui: https://www.youtube.com/watch?v=trKjYdBASyQ
     val boardTotal = board.count(p => xString.equals(p) || oString.equals(p))
     val gameState = winnerTieOrNull(board)
-    if (1.equals(boardTotal) && symbol.equals(board(4))) {
-      1_000_000_000
-    } else if (0.equals(depth) && symbol.equals(gameState)) {
+    if (0.equals(depth) && symbol.equals(gameState)) {
       999_999_000
     } else {
       if (gameState.nonEmpty) {
@@ -180,22 +178,24 @@ case class ComputerPlayer(symbol: String, name: String) extends PlayerBoard {
   override def getMove(board: Array[String]): (Int, Int) = {
     var bestMove = Int.MinValue
     var moveIndex = Int.MinValue
-    breakable { for (index <- 0 to 8) {
-      if (spaceString.equals(board(index))) {
-        board(index) = symbol
-        val score = minimax(board, depth = 0, isMaximizing = false)
-        board(index) = spaceString
-        if (score > bestMove) {
-          println(s"score: $score, index: $index")
-          bestMove = score
-          moveIndex = index
+    breakable {
+      for (index <- 0 to 8) {
+        if (spaceString.equals(board(index))) {
+          board(index) = symbol
+          val score = minimax(board, depth = 0, isMaximizing = false)
+          board(index) = spaceString
+          if (score > bestMove) {
+            println(s"score: $score, index: $index")
+            bestMove = score
+            moveIndex = index
 
-          if (1_000_000_000.equals(score) || 999_999_000.equals(score)) {
-            break
+            if (999_999_000.equals(score)) {
+              break
+            }
           }
         }
       }
-    }}
+    }
 
     val positions = Array(
       (1, 1), (1, 2), (1, 3),
